@@ -1,0 +1,25 @@
+* {
+    background-color: rgb(23,28,29);
+    color: rgb(23,28,29);
+    padding: 0px;
+    margin: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+head {
+    height: 0px;
+}
+
+body {
+    height: 95vh;
+}
+
+img {
+    aspect-ratio: 4 / 3;
+    width:75vw;
+}
