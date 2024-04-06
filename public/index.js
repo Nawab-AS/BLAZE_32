@@ -58,6 +58,11 @@ function windowResized() {
   resizeCanvas(1280*ratio, 720*ratio);
 }
 
+function getTime(){
+    let d = new Date();
+    return d.setTime( d.getTime() + d.getTimezoneOffset()*60*1000 );
+}
+
 function setup() {
     createCanvas(100, 100);
     windowResized();
@@ -72,7 +77,7 @@ function setup() {
     socket.on("player_disconnected", disconnect);
     socket.on("player_update", (data) => {
         if (data.id == id) { return; }
-        players[data.id] = { x: data.x, y: data.y, id: data.id, weapon: data.weapon, stance: data.stance };
+        players[data.id] = { x: data.x, y: data.y, id: data.id, weapon: data.weapon, stance: data.stance, tick:getTime() };
     });
 }
 
@@ -94,9 +99,14 @@ function draw() {
     rect(me.x, me.y, 50, 50);
     rect(500, 10, 200, 100);
     text("You", me.x, me.y);
-    socket.emit("pos", { x: me.x, y: me.y, id: id, weapon: me.weapon, stance: me.stance });
+    socket.emit("pos", { x: me.x, y: me.y, id: id, weapon: me.weapon, stance: me.stance, tick:getTime()});
     for (let i = 0; i < Object.keys(players).length; i++) {
         let player = players[Object.keys(players)[i]];
+        // connection timeout
+        if (player.tick + (3*1000)<getTime()){
+            delete players[Object.keys(players)[i]];
+        }
+        // draw player
         let animFrames1 = (animFrames + animDelay) % anim[player.weapon][player.stance].length;
         image(anim[player.weapon][player.stance][animFrames1], player.x, player.y);
         rect(player.x, player.y, 50, 50);
