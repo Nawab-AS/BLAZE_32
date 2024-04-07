@@ -24,7 +24,11 @@ var anim = {
     "Shotgun": {},
     "Rifle": {}
 }
-let tiles = [];
+let tiles;
+
+function getTile(i){
+    return tiles.get((i*128)%512, 128*Math.floor(i/9), 128, 128);
+}
 
 function BulkloadImage(prefix, index, fileType) {
     let images = [];
@@ -42,9 +46,7 @@ function preload() {
     anim["Knife"]["move"] = BulkloadImage("images/knife/move/survivor-move_knife_", 20, ".png");
 
     anim["Knife"]["reload"] = BulkloadImage("images/knife/idle/survivor-idle_knife_", 20, ".png"); // to stop errors
-
-    // tiles
-    tiles = []
+    tiles = loadImage("images/tilemap.png");
 }
 
 function windowResized() {
@@ -101,7 +103,13 @@ function draw() {
     
     fill(255);
     rect(me.x, me.y, 50, 50);
-    rect(500, 10, 200, 100);
+    push();
+    imageMode(CORNER);
+    for (let i = 0; i<4;i++){
+        for (let j = 0;j<9;j++)
+        image(getTile(i*9+j), j*130, i*130);
+    }
+    pop();
     text("You", me.x, me.y);
     socket.emit("pos", { x: me.x, y: me.y, id: id, weapon: me.weapon, stance: me.stance, tick:getTime()});
     for (let i = 0; i < Object.keys(players).length; i++) {
