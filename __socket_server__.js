@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
 });
 
 http.listen(3000, function () {
-    console.log("listening on *:3000");
+    console.log("http listening on *:3000");
 });
 
 setInterval(() => { tick=(tick+1)%30; }, 1000 / 30);
