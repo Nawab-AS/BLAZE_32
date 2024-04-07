@@ -1,6 +1,6 @@
 let express = require("express");
 var app = require("express")();
-var http = require("http").Server(app);
+var http = require("http").createServer(app);
 let io = require("socket.io")(http);
 let ids = [];
 let tick = 0;
