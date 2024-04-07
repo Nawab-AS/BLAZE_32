@@ -31,8 +31,8 @@ io.on("connection", (socket) => {
 
 });
 
-http.listen(3000, function () {
-    console.log("http listening on *:3000");
+http.listen(80, function () {
+    console.log("http listening on *:80");
 });
 
 setInterval(() => { tick=(tick+1)%30; }, 1000 / 30);
