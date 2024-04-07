@@ -24,6 +24,7 @@ var anim = {
     "Shotgun": {},
     "Rifle": {}
 }
+let tiles = [];
 
 function BulkloadImage(prefix, index, fileType) {
     let images = [];
@@ -41,6 +42,9 @@ function preload() {
     anim["Knife"]["move"] = BulkloadImage("images/knife/move/survivor-move_knife_", 20, ".png");
 
     anim["Knife"]["reload"] = BulkloadImage("images/knife/idle/survivor-idle_knife_", 20, ".png"); // to stop errors
+
+    // tiles
+    tiles = []
 }
 
 function windowResized() {

@@ -2,12 +2,17 @@ let express = require("express");
 var app = require("express")();
 var http = require("http").createServer(app);
 let io = require("socket.io")(http);
+let fs = require("fs");
 let ids = [];
 let tick = 0;
 
 app.use(express.static(__dirname + "/public"));
 app.use(function (req, res) {
+    if (fs.existsSync(__dirname + "/public" + req.url)){
     res.sendFile(__dirname + "/public" + req.url);
+    } else {
+        res.sendFile(__dirname + "/public/404.html");
+    }
 });
 
 io.on("connection", (socket) => {
@@ -22,7 +27,7 @@ io.on("connection", (socket) => {
         id = data.id;
         console.log(id + " has registered as a new player");
         ids.push(data.id);
-        socket.emit("delay" + id, { ticks: 30-tick });
+        socket.emit("delay" + id, { ticks: tick });
     });
 
     socket.on("pos", (data) => {
