@@ -25,10 +25,30 @@ var anim = {
     "Rifle": {}
 }
 let tilemap;
-let map = { map: [], w: 5, h: 5 };
+let map = "";
 
-function getTile(i) {
-    if (i != -1 && i < 16) {
+function getPlayerFrame(weapon, stance){
+    let animFrames1 = (animFrames + animDelay) % anim[weapon][stance].length;
+    let img = anim[weapon][stance][animFrames1];
+    img.resize(200,200);
+    return img;
+}
+
+function getTile(iBlock) {
+    /* 
+    ▉
+    ▖ ▘ ▗  ▝
+    ▙ ▛ ▜ ▟
+    ▌ ▐ ▁ ▔
+    */
+
+    let i;
+    switch(iBlock){
+        case "▉":
+            i = 17;
+    }
+
+     if (i != -1 && i < 17) {
         return tilemap.get((i * 128) % 512, 128 * Math.floor((i) / 4), 128, 128);
     } else {
         return createImage(128, 128);
@@ -92,13 +112,19 @@ function setup() {
         players[data.id] = { x: data.x, y: data.y, id: data.id, weapon: data.weapon, stance: data.stance, tick: getTime() };
     });
 
-    // setup tiles
-    for (let i = 0; i < map.h; i++) {
-        for (let j = 0; j < map.w; j++) {
-            map.map.push((i * map.w + j)%16);
-        }
-    }
-    map.map=[0, 1, 2, 2, 3, 4, 6, 7, 8, 7, 4, 11, 12, 13, 7, 4, 0, 1, 2, 7, 12, 14, 14, 14, 15];
+    /*
+    ▉
+    ▖ ▘ ▗  ▝
+    ▙ ▛ ▜ ▟
+    ▌ ▐ ▁ ▔
+    */
+
+    map.map=`
+▗▁▁▁▁▖
+▐▛▔▔▜▌
+▐▌  ▐▌
+▐▙▁▁▟▌
+▝▔▔▔▔▘`;
 }
 
 function disconnect(data) {
@@ -112,18 +138,19 @@ function draw() {
     scale(ratio);
     background(200);
     animFrames++;
-    let animFrames1 = (animFrames + animDelay) % anim[me.weapon][me.stance].length;
-    image(anim[me.weapon][me.stance][animFrames1], me.x, me.y);
+    image(getPlayerFrame(me.weapon, me.stance), me.x, me.y);
 
     fill(255);
     rect(me.x, me.y, 50, 50);
     push();
     imageMode(CORNER);
-    for (let i = 0; i < map.h; i++) {
-        for (let j = 0; j < map.w; j++) {
-            image(getTile(map.map[i * map.w + j]), j * 130+20, i * 130+20);
-            text(i * map.w + j, j * 130+20+64, i * 130+20+64)
-        }
+    let old = 1;
+    let j = 0;
+    for (let i = 0; i < map.length; i++) {
+        if (map[i] == "\n"){ j++; old = i; continue }
+        let i2 = (old-1)
+        image(getTile(map[i+j]), j * 130+20, i2 * 130+20);
+        text(i-j, j * 130+20+64, i2 * 130+20+64);
     }
     pop();
     text("You", me.x, me.y);
@@ -135,8 +162,7 @@ function draw() {
             delete players[Object.keys(players)[i]];
         }
         // draw player
-        let animFrames1 = (animFrames + animDelay) % anim[player.weapon][player.stance].length;
-        image(anim[player.weapon][player.stance][animFrames1], player.x, player.y);
+        image(getPlayerFrame(player.weapon, player.stance), player.x, player.y);
         rect(player.x, player.y, 50, 50);
         text(player.id, player.x, player.y);
     }
