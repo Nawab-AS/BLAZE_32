@@ -167,7 +167,7 @@ function draw() {
     // tilemap
     for (let i = 0; i < map.length; i++) {
         for (let j = 0; j<map[i].length;j++){
-            image(getTile(map[i][j]), j * 128, i * 128);
+            image(getTile(map[i][j]), j * 128+2, i * 128+20);
             text(i+","+j, j * 128, i * 128);
         }
     }
