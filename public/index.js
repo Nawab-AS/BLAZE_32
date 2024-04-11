@@ -13,7 +13,8 @@
 const socket = io();
 var id;
 let ratio;
-var me = { x: 100, y: 100, weapon: "Knife", stance: "idle" };
+let keys = {};
+var player = { x: 100, y: 100, weapon: "Knife", stance: "idle" };
 var anim = {
     "Knife": {},
     "Pistol": {},
@@ -92,10 +93,10 @@ function getTile(Block) {
     }
 }
 
-function BulkloadImage(prefix, index, fileType) {
+function BulkloadImage(prefix, index) {
     let images = [];
     for (let i = 0; i < index; i++) {
-        images.push(loadImage(prefix + i + fileType));
+        images.push(loadImage("images/"+prefix + i + ".png"));
 
     }
     return images;
@@ -103,9 +104,9 @@ function BulkloadImage(prefix, index, fileType) {
 
 function preload() {
     // Knife
-    anim["Knife"]["idle"] = BulkloadImage("images/knife/idle/survivor-idle_knife_", 20, ".png");
-    anim["Knife"]["attack"] = BulkloadImage("images/knife/meleeattack/survivor-meleeattack_knife_", 15, ".png");
-    anim["Knife"]["move"] = BulkloadImage("images/knife/move/survivor-move_knife_", 20, ".png");
+    anim["Knife"]["idle"] = BulkloadImage("knife/idle/survivor-idle_knife_", 20);
+    anim["Knife"]["attack"] = BulkloadImage("knife/meleeattack/survivor-meleeattack_knife_", 15);
+    anim["Knife"]["move"] = BulkloadImage("knife/move/survivor-move_knife_", 20);
     tilemap = loadImage("images/tilemap.png");
 }
 
@@ -161,21 +162,30 @@ function draw() {
     update = getTime();
     scale(ratio);
     background(200);
-    image(getPlayerFrame(me.weapon, me.stance), me.x, me.y);
+    image(getPlayerFrame(player.weapon, player.stance), player.x, player.y);
 
     // tilemap
     for (let i = 0; i < map.length; i++) {
         for (let j = 0; j<map[i].length;j++){
             image(getTile(map[i][j]), j * 128, i * 128);
-            text(i+","+j, j * 128, i * 128);
+            text(i+","+j, j * 128+64, i * 128+64);
         }
     }
 }
 
 function mouseDragged() {
-    me.x = pos(mouseX); me.y = pos(mouseY);
+    player.x = pos(mouseX); player.y = pos(mouseY);
 }
 
 function pos(val) {
     return 1 / ratio * val;
+}
+
+function keyPressed(){
+    console.log(keyCode);
+    keys[keyCode] = true;
+}
+
+function keyReleased(){
+    keys[keyCode] = false;
 }
