@@ -168,7 +168,7 @@ function draw() {
     for (let i = 0; i < map.length; i++) {
         for (let j = 0; j<map[i].length;j++){
             image(getTile(map[i][j]), j * 128, i * 128);
-            text(i+","+j, j * 128+64, i * 128+64);
+            text(i+","+j, j * 128, i * 128);
         }
     }
 }
