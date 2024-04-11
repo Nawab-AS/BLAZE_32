@@ -1,5 +1,4 @@
-/*
-                            Credits
+/*                          Credits
 
         Animated Top Down Survivor Player By rileygombart
     https://opengameart.org/content/animated-top-down-survivor-player
@@ -7,17 +6,14 @@
                             P5.js
                         https://p5js.org
 
-                          socket.io
-                      https://socket.io
-*/
+                           socket.io
+                       https://socket.io                                 */
+
 
 const socket = io();
 var id;
 let ratio;
-var animDelay = 0;
-let players = {};
 var me = { x: 100, y: 100, weapon: "Knife", stance: "idle" };
-let animFrames = 0;
 var anim = {
     "Knife": {},
     "Pistol": {},
@@ -25,30 +21,71 @@ var anim = {
     "Rifle": {}
 }
 let tilemap;
-let map = "";
+let map;
 
-function getPlayerFrame(weapon, stance){
-    let animFrames1 = (animFrames + animDelay) % anim[weapon][stance].length;
+function getPlayerFrame(weapon, stance) {
+    let animFrames1 = (frameCount) % anim[weapon][stance].length;
     let img = anim[weapon][stance][animFrames1];
-    img.resize(200,200);
+    img.resize(150, 150);
     return img;
 }
 
-function getTile(iBlock) {
+function getTile(Block) {
     /* 
     ▉
     ▖ ▘ ▗  ▝
     ▙ ▛ ▜ ▟
     ▌ ▐ ▁ ▔
     */
-
     let i;
-    switch(iBlock){
+    switch (Block) {
         case "▉":
-            i = 17;
+            i = 16;
+            break;
+        case " ":
+            i = -1;
+            break;
+        case "▗":
+            i = 0;
+            break;
+        case "▁":
+            i = 1;
+            break;
+        case "▖":
+            i = 3;
+            break;
+        case "▐":
+            i = 4;
+            break;
+        case "▛":
+            i = 5;
+            break;
+        case "▜":
+            i = 6;
+            break;
+        case "▌":
+            i = 7;
+            break;
+        case "▙":
+            i = 9;
+            break;
+        case "▟":
+            i = 10;
+            break;
+        case "▝":
+            i = 12;
+            break;
+        case "▔":
+            i = 13;
+            break;
+        case "▘":
+            i = 15;
+            break;
+        default:
+            i = Block;
     }
 
-     if (i != -1 && i < 17) {
+    if (i != -1 && i < 17) {
         return tilemap.get((i * 128) % 512, 128 * Math.floor((i) / 4), 128, 128);
     } else {
         return createImage(128, 128);
@@ -69,8 +106,6 @@ function preload() {
     anim["Knife"]["idle"] = BulkloadImage("images/knife/idle/survivor-idle_knife_", 20, ".png");
     anim["Knife"]["attack"] = BulkloadImage("images/knife/meleeattack/survivor-meleeattack_knife_", 15, ".png");
     anim["Knife"]["move"] = BulkloadImage("images/knife/move/survivor-move_knife_", 20, ".png");
-
-    anim["Knife"]["reload"] = BulkloadImage("images/knife/idle/survivor-idle_knife_", 20, ".png"); // to stop errors
     tilemap = loadImage("images/tilemap.png");
 }
 
@@ -104,13 +139,6 @@ function setup() {
 
     // connecting to server
     socket.emit("register_new_player", { id: id });
-    socket.on("delay" + id, (data) => { animDelay = data.ticks; });
-
-    socket.on("player_disconnected", disconnect);
-    socket.on("player_update", (data) => {
-        if (data.id == id) { return; }
-        players[data.id] = { x: data.x, y: data.y, id: data.id, weapon: data.weapon, stance: data.stance, tick: getTime() };
-    });
 
     /*
     ▉
@@ -119,52 +147,28 @@ function setup() {
     ▌ ▐ ▁ ▔
     */
 
-    map.map=`
-▗▁▁▁▁▖
-▐▛▔▔▜▌
-▐▌  ▐▌
-▐▙▁▁▟▌
-▝▔▔▔▔▘`;
-}
-
-function disconnect(data) {
-    if (data.id in players) {
-        console.log(data.id + " has disconnected");
-        delete players[data.id];
-    }
+    map = [
+        ["▗","▁","▁","▁","▖"],
+        ["▐", "▛","▔","▜","▌"],
+        ["▐", "▌"," " , "▐","▌"],
+        ["▐", "▌","▗","▟" ,"▌"],
+        ["▐", "▙","▟","▉","▌"],
+        ["▝", "▔","▔","▔","▘"]
+    ];
 }
 
 function draw() {
+    update = getTime();
     scale(ratio);
     background(200);
-    animFrames++;
     image(getPlayerFrame(me.weapon, me.stance), me.x, me.y);
 
-    fill(255);
-    rect(me.x, me.y, 50, 50);
-    push();
-    imageMode(CORNER);
-    let old = 1;
-    let j = 0;
+    // tilemap
     for (let i = 0; i < map.length; i++) {
-        if (map[i] == "\n"){ j++; old = i; continue }
-        let i2 = (old-1)
-        image(getTile(map[i+j]), j * 130+20, i2 * 130+20);
-        text(i-j, j * 130+20+64, i2 * 130+20+64);
-    }
-    pop();
-    text("You", me.x, me.y);
-    socket.emit("pos", { x: me.x, y: me.y, id: id, weapon: me.weapon, stance: me.stance, tick: getTime() });
-    for (let i = 0; i < Object.keys(players).length; i++) {
-        let player = players[Object.keys(players)[i]];
-        // connection timeout
-        if (player.tick + (3 * 1000) < getTime()) {
-            delete players[Object.keys(players)[i]];
+        for (let j = 0; j<map[i].length;j++){
+            image(getTile(map[i][j]), j * 128, i * 128);
+            text(i+","+j, j * 128, i * 128);
         }
-        // draw player
-        image(getPlayerFrame(player.weapon, player.stance), player.x, player.y);
-        rect(player.x, player.y, 50, 50);
-        text(player.id, player.x, player.y);
     }
 }
 
