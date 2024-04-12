@@ -9,27 +9,10 @@
                            socket.io
                        https://socket.io                                 */
 
-
-const socket = io();
-var id;
 let ratio;
-let keys = {};
-var player = { x: 100, y: 100, weapon: "Knife", stance: "idle" };
-var anim = {
-    "Knife": {},
-    "Pistol": {},
-    "Shotgun": {},
-    "Rifle": {}
-}
+player = new Player();
 let tilemap;
 let map;
-
-function getPlayerFrame(weapon, stance) {
-    let animFrames1 = (frameCount) % anim[weapon][stance].length;
-    let img = anim[weapon][stance][animFrames1];
-    img.resize(150, 150);
-    return img;
-}
 
 function getTile(Block) {
     /* 
@@ -93,20 +76,8 @@ function getTile(Block) {
     }
 }
 
-function BulkloadImage(prefix, index) {
-    let images = [];
-    for (let i = 0; i < index; i++) {
-        images.push(loadImage("images/"+prefix + i + ".png"));
-
-    }
-    return images;
-}
-
 function preload() {
-    // Knife
-    anim["Knife"]["idle"] = BulkloadImage("knife/idle/survivor-idle_knife_", 20);
-    anim["Knife"]["attack"] = BulkloadImage("knife/meleeattack/survivor-meleeattack_knife_", 15);
-    anim["Knife"]["move"] = BulkloadImage("knife/move/survivor-move_knife_", 20);
+    player.loadImages();
     tilemap = loadImage("images/tilemap.png");
 }
 
@@ -133,13 +104,10 @@ function getTime() {
 function setup() {
     createCanvas(100, 100);
     windowResized();
-    id = Math.random().toString(36).slice(2);
     frameRate(30);
     angleMode(DEGREES);
     imageMode(CENTER);
-
-    // connecting to server
-    socket.emit("register_new_player", { id: id });
+    player.connectToServer();
 
     /*
     ▉
@@ -147,45 +115,36 @@ function setup() {
     ▙ ▛ ▜ ▟
     ▌ ▐ ▁ ▔
     */
-
     map = [
-        ["▗","▁","▁","▁","▖"],
-        ["▐", "▛","▔","▜","▌"],
-        ["▐", "▌"," " , "▐","▌"],
-        ["▐", "▌","▗","▟" ,"▌"],
-        ["▐", "▙","▟","▉","▌"],
-        ["▝", "▔","▔","▔","▘"]
+        ["▗", "▁", "▁", "▁", "▖"],
+        ["▐", "▛", "▔", "▜", "▌"],
+        ["▐", "▌", " ", "▐", "▌"],
+        ["▐", "▌", "▗", "▟", "▌"],
+        ["▐", "▙", "▟", "▉", "▌"],
+        ["▝", "▔", "▔", "▔", "▘"]
     ];
 }
 
 function draw() {
-    update = getTime();
+    // set size
     scale(ratio);
     background(200);
-    image(getPlayerFrame(player.weapon, player.stance), player.x, player.y);
+    player.move(mouseX, mouseY);
+    player.draw();
 
     // tilemap
     for (let i = 0; i < map.length; i++) {
-        for (let j = 0; j<map[i].length;j++){
-            image(getTile(map[i][j]), j * 128+2, i * 128+20);
-            text(i+","+j, j * 128, i * 128);
+        for (let j = 0; j < map[i].length; j++) {
+            image(getTile(map[i][j]), j * 128 + 2, i * 128 + 20);
+            text(i + "," + j, j * 128, i * 128);
         }
     }
 }
 
-function mouseDragged() {
-    player.x = pos(mouseX); player.y = pos(mouseY);
+function keyPressed() {
+    console.log(keyCode, key);
 }
 
 function pos(val) {
     return 1 / ratio * val;
-}
-
-function keyPressed(){
-    console.log(keyCode);
-    keys[keyCode] = true;
-}
-
-function keyReleased(){
-    keys[keyCode] = false;
 }
