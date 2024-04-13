@@ -63,7 +63,7 @@ function Player() {
         push();
         translate(this.x,this.y);
         rotate(this.angle);
-        image(img, 0, 0);
+        image(img, 15, 0);
         pop();
     }
 }
