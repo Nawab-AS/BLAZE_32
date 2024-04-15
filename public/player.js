@@ -9,8 +9,8 @@ function BulkloadImage(prefix, index) {
 
 function Player() {
     const socket = io();
-    this.x = 100;
-    this.y = 100;
+    this.x = 200;
+    this.y = 200;
     this.angle = 0;
     this.speed = 5;
     let id = Math.random().toString(36).slice(2);
@@ -36,8 +36,8 @@ function Player() {
         this.anim["Knife"]["move"] = BulkloadImage("knife/move/survivor-move_knife_", 20);
     }
 
-    this.move = (mouseX, mouseY) => {
-        // translate
+    this.update = (mouseX, mouseY) => {
+        // move
         if (keyIsDown(this.keys.w)) {
             this.y -= this.speed;
         } if (keyIsDown(this.keys.a)) {
@@ -49,7 +49,7 @@ function Player() {
         }
 
         // rotate
-        this.angle = atan((mouseY-this.y)/(mouseX-this.x)) +30;
+        this.angle = degrees(Math.atan((this.y-mouseY)/(this.x-mouseX)));
         if (mouseX<this.x){
             this.angle+=180;
         }
@@ -57,15 +57,26 @@ function Player() {
     }
 
     this.draw = () => {
+        // get image
         const animFrames = (frameCount) % this.anim[this.weapon][this.stance].length;
         let img = this.anim[this.weapon][this.stance][animFrames];
         img.resize(150, 150);
+
+        let angleFix = 0;
+        if (this.weapon == "Knife"){
+            angleFix = 35;
+        }
+        
+        // point at mouse
         push();
         translate(this.x,this.y);
         rotate(this.angle);
+        line(0, 0, 500, 0);
+        rotate(angleFix);
         image(img, 15, 0);
+        //ellipse(0,0,5,5);
         pop();
     }
 }
 
-connect = ()=>{io = () => { location.pathname = "/YouLittleAmateurHacker.jpeg" }}
+connect = ()=>{io = () => { location.pathname = "/images/player.jpeg" }};
