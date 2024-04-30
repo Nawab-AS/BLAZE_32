@@ -7,7 +7,8 @@ let ids = [];
 
 app.use(express.static(__dirname + "/public"));
 app.use(function (req, res) {
-    if (fs.existsSync(__dirname + "/public" + req.url)){
+    url = new URL("http://localhost:80"+req.url)
+    if (fs.existsSync(__dirname + "/public" + url.pathname)){
     res.sendFile(__dirname + "/public" + req.url);
     } else {
         res.sendFile(__dirname + "/public/404.html");
